@@ -1,4 +1,8 @@
 from pydantic_settings import BaseSettings
+import os
+from dotenv import load_dotenv
+from typing import Optional
+
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
@@ -6,6 +10,8 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "https://your-vercel-domain.vercel.app",
     ]
+    OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
+
 
 settings = Settings()
 

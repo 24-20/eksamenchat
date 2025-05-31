@@ -5,4 +5,7 @@ uvicorn
 pydantic
 pydantic-settings
 python-multipart
+
 openai
+
+
