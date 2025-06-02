@@ -1,14 +1,10 @@
 from openai import OpenAI
 from app.core.config import settings
-from typing import Optional
-from dotenv import load_dotenv
-import os
 
-
-OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 async def chat_stream(prompt: str):
+    print(prompt)
     stream = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}],
