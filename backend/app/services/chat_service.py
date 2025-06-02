@@ -1,7 +1,12 @@
 from openai import OpenAI
 from app.core.config import settings
+from typing import Optional
+from dotenv import load_dotenv
+import os
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 async def chat_stream(prompt: str):
     stream = client.chat.completions.create(
