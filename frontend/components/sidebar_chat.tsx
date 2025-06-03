@@ -2,9 +2,7 @@
 
 "use client";
 
-import { cn } from "@/lib/utils"; // assuming you're using a cn utility
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"; // Shadcn Sheet
-import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent } from "@/components/ui/sheet"; // Shadcn Sheet
 
 interface SidebarProps {
   isOpen: boolean;
