@@ -2,7 +2,10 @@
 
 'use client';
 
-import { useState } from 'react';
+
+
+import json;
+import { useState, useEffect } from 'react';
 import { useModel } from '@/context/model-context';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,20 +19,32 @@ export default function ChatPage() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<string[]>([]);
   const { model, setModel } = useModel();
-
+  const [error, setError] = useState<false | any >(false)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessages((prev) => [...prev, '']);
     
-    const response = await fetch('http://localhost:8000/api/v1/chat/stream', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: input, model }),
-    });
+    try {
+          
+        const response = await fetch('http://localhost:8000/api/v1/chat/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: input, model }),
+        });
 
 
-    if (!response.body) return;
+    } catch (error) {
+        setError(error)
+        console.log('errrrrrorrrr', error)  
+        return
+    }
 
+
+    if (!response.body) { 
+      console.log('error fetching data')
+      return
+    }
+      
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let done = false;
@@ -56,6 +71,13 @@ export default function ChatPage() {
      setInput('');
   };
 
+
+
+
+  useEffect(() => {
+    console.log(error)
+   }, [error])
+  
   return (
     <div className="max-w-2xl mx-auto p-8">
       <div className="mb-4">
@@ -80,14 +102,21 @@ export default function ChatPage() {
           Send
         </button>
       </form>
-      <div className="space-y-4">
-        {messages.map((msg, idx) => (
-          <div key={idx} className="p-4 bg-gray-100 rounded-lg shadow">
-            {msg}
-          </div>
-        ))}
+      {
+        error?
+        <div>
+          {json.stringify(error)}
+        </div>
+        :
+        <div className="space-y-4">
+          {messages.map((msg, idx) => (
+            <div key={idx} className="p-4 bg-gray-100 rounded-lg shadow">
+              {msg}
+            </div>
+          ))}
+        </div>
+      }
       </div>
-    </div>
   );
 }
 
