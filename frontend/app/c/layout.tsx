@@ -10,11 +10,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className=" flex w-screen">
         <AppSidebar />
 
-        <SidebarTrigger className=" absolute p-2 hover:bg-foreground/20 m-2 " />
-        <nav className=" fixed ">testing</nav>
+        <SidebarTrigger className=" absolute p-2 hover:bg-foreground/20 m-2 z-20 " />
         <div className=" pt-2 bg-accent min-h-screen flex-grow flex justify-items-end flex-col ">
 
-          {children}
+          <nav className=" fixed z-10 h-12 p-2 pl-16 border-foreground/20 border-b-[1px] w-full">testing</nav>
+          <div className="mt-16">
+            {children}
+          </div>
         </div>
 
       </main>
