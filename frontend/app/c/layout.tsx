@@ -11,7 +11,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <AppSidebar />
 
         <SidebarTrigger className=" absolute p-2 hover:bg-foreground/20 m-2 " />
+        <nav className=" fixed ">testing</nav>
         <div className=" pt-2 bg-accent min-h-screen flex-grow flex justify-items-end flex-col ">
+
           {children}
         </div>
 
