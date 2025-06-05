@@ -11,11 +11,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <AppSidebar />
 
         <SidebarTrigger className=" absolute p-2 hover:bg-foreground/20 m-2 z-20 " />
-        <div className=" pt-2 bg-accent min-h-screen flex-grow flex justify-items-end flex-col ">
+        <div className=" pt-2 bg-accent min-h-screen flex-grow flex justify-items-end ">
 
-          <nav className=" fixed z-10 h-12 p-2 pl-16 border-foreground/20 border-b-[1px] w-full">testing</nav>
-          <div className="mt-16">
-            {children}
+          <nav className=" fixed z-10 h-12 p-2 pl-10 border-foreground/20 border-b-[1px] w-full flex justify-center">
+            <div className=" max-w-2xl w-full">
+              testing
+            </div>
+          </nav>
+          <div className="mt-16 flex justify-center">
+            <div className=" max-w-2xl w-full p-4">
+              {children}
+            </div>
           </div>
         </div>
 
