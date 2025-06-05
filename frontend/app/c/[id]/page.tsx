@@ -8,8 +8,8 @@ export default function Page({ params }: PageProps) {
   const { id } = params;
 
   return (
-    <div>
-      <h1>Captured ID: {id}</h1>
-    </div>
+    <>
+      <h1 className=" w-fit bg-red-200">Captured ID: {id}</h1>
+    </>
   );
 }
