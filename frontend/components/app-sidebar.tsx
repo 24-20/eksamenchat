@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+import { SquarePenIcon, User } from "lucide-react"
 
 import {
   Sidebar,
@@ -14,37 +14,19 @@ import {
 // Menu items.
 const items = [
   {
-    title: "Home",
+    title: "Ny chat",
     url: "#",
-    icon: Home,
+    icon: SquarePenIcon,
   },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
+
 ]
 
 export function AppSidebar() {
   return (
     <Sidebar variant="sidebar">
       <SidebarContent className=" bg-background w-[250px]">
-        <SidebarGroup>
+
+        <SidebarGroup className=" mt-8">
           <SidebarGroupLabel></SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -61,6 +43,18 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+
+        <SidebarGroup className="absolute bottom-0">
+          <SidebarGroupContent className=" flex border-border border-t ">
+            <div className="h-20 w-full p-4 flex items-center gap-2 ">
+              <User />
+              Aleksander Sivertsen
+            </div>
+
+          </SidebarGroupContent>
+        </SidebarGroup>
+
       </SidebarContent>
     </Sidebar>
   )
