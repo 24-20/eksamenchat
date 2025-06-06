@@ -13,8 +13,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <SidebarTrigger className=" absolute p-2 hover:bg-foreground/20 m-2 z-20 " />
         <div className=" pt-2 bg-accent min-h-screen flex-grow flex justify-items-end ">
 
-          <nav className=" fixed z-10 h-12 p-2 pl-10 border-foreground/20 border-b-[1px] w-full flex justify-center">
-            <div className=" max-w-2xl w-full">
+          <nav className=" fixed z-10 h-12 p-2 pt-0 border-foreground/20 border-b-[1px] w-full flex pl-14 ">
+
+            <div className=" max-w-2xl w-full flex items-center h-full ">
               < ModelDropwdown />
             </div>
           </nav>
