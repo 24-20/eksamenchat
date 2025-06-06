@@ -1,6 +1,10 @@
+import ChatInput from "@/components/chat-input"
+
 const page = () => {
   return (
-    <div></div>
+    <div>
+      <ChatInput />
+    </div>
   )
 }
 
