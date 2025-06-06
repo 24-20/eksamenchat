@@ -1,15 +1,14 @@
 "use client"
 
 import * as React from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -17,6 +16,8 @@ import { useAppContext } from "@/app/app-context"
 
 export function ModelDropdown() {
   const { knowledgeBase, setKnowledgeBase, model, setModel } = useAppContext();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const knowledgeBases = [
     { id: "matte_r2", label: "Matte R2" },
@@ -25,9 +26,8 @@ export function ModelDropdown() {
   ];
 
   const gptModels = [
-    { id: "gpt_4", label: "GPT-4" },
-    { id: "gpt_4o", label: "GPT-4o" },
-    { id: "gpt_4_mini", label: "GPT-4 Mini" },
+    { id: "gpt_o4_mini", label: "GPT-o4-mini", description: "Raskest" },
+    { id: "gpt_4o", label: "GPT-4o", description: "Anbefalt" },
   ];
 
   const [tempKnowledgeBase, setTempKnowledgeBase] = React.useState(knowledgeBase.id);
@@ -37,8 +37,25 @@ export function ModelDropdown() {
     const selectedKB = knowledgeBases.find((kb) => kb.id === tempKnowledgeBase);
     const selectedModel = gptModels.find((m) => m.id === tempModel);
 
-    if (selectedKB) setKnowledgeBase(selectedKB);
-    if (selectedModel) setModel(selectedModel);
+    if (selectedKB) {
+      setKnowledgeBase(selectedKB);
+      localStorage.setItem('kb', selectedKB.id); // Update localStorage
+    }
+    if (selectedModel) {
+      setModel(selectedModel);
+      localStorage.setItem('model', selectedModel.id); // Update localStorage
+    }
+
+    // Update the URL search params
+    const params = new URLSearchParams(searchParams.toString());
+    if (selectedModel) {
+      params.set('model', selectedModel.id);
+    }
+    if (selectedKB) {
+      params.set('kb', selectedKB.id);
+    }
+
+    router.push(`?${params.toString()}`, { scroll: false });
 
     setOpen(false);
   };
@@ -60,28 +77,38 @@ export function ModelDropdown() {
           className="col-span-2 grid grid-cols-2 gap-2"
         >
           {gptModels.map((m) => (
-            <DropdownMenuRadioItem onSelect={e => e.preventDefault()} key={m.id} value={m.id} className="text-center cursor-pointer">
+            <DropdownMenuRadioItem
+              onSelect={(e) => e.preventDefault()}
+              key={m.id}
+              value={m.id}
+              className="text-center cursor-pointer flex flex-col items-start justify-start"
+            >
               {m.label}
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>
 
-        <div className="col-span-2 font-thin text-sm pl-2">Kunnskapsbaser</div>
+        <div className="col-span-2 font-thin text-sm pl-2 mt-2">Kunnskapsbaser</div>
         <DropdownMenuRadioGroup
           value={tempKnowledgeBase}
           onValueChange={(value) => setTempKnowledgeBase(value)}
           className="col-span-2 grid grid-cols-2 gap-2"
         >
           {knowledgeBases.map((kb) => (
-            <DropdownMenuRadioItem onSelect={e => e.preventDefault()} key={kb.id} value={kb.id} className="text-center cursor-pointer">
+            <DropdownMenuRadioItem
+              onSelect={(e) => e.preventDefault()}
+              key={kb.id}
+              value={kb.id}
+              className="text-center cursor-pointer flex flex-col items-start justify-start"
+            >
               {kb.label}
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>
 
-        <div className="col-span-2 flex justify-end m-2">
-          <Button onClick={handleSave} className=" bg-accent hover:bg-foreground/20 text-foreground">
-            Lagre
+        <div className="col-span-2 flex justify-end p-2">
+          <Button onClick={handleSave} variant="outline" size="sm">
+            Save
           </Button>
         </div>
       </DropdownMenuContent>
