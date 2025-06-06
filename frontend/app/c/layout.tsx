@@ -1,6 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
-import { ModelDropwdown } from "@/components/model-dropdown"
+import { ModelDropdown } from "@/components/model-dropdown"
 export default function Layout({ children }: { children: React.ReactNode }) {
 
 
@@ -16,7 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <nav className=" fixed z-10 h-12 p-2 pt-0 border-foreground/20 border-b-[1px] w-full flex pl-14 ">
 
             <div className=" max-w-2xl w-full flex items-center h-full ">
-              < ModelDropwdown />
+              < ModelDropdown />
             </div>
           </nav>
           <div className="mt-16 flex justify-center">
