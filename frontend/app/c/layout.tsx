@@ -22,7 +22,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </nav>
           <div className="mt-16 flex justify-center w-full">
-            <div className=" max-w-3xl w-full p-4 flex items-center justify-center h-[calc(100vh-100px)] overflow-scroll pt-[150px] pb-8">
+            <div className=" max-w-3xl w-full flex items-center justify-center h-[calc(100vh-100px)] overflow-scroll ">
               {children}
             </div>
           </div>

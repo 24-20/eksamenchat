@@ -20,7 +20,7 @@ const Message: React.FC<MessageProps> = ({ content, isUser }) => {
   // You can style .katex-error in your CSS.
 
   return (
-    <div className={`flex h-full w-full ${isUser ? 'items-end justify-end' : 'items-start'}`}>
+    <div className={`flex pb-12 h-full w-full ${isUser ? 'items-end justify-end' : 'items-start'}`}>
       <div
         className={`p-4 rounded-lg ${isUser ? ' bg-foreground/5 self-end max-w-[350px] w-fit' : ' self-start'
           }`}
