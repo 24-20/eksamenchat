@@ -18,7 +18,7 @@ const Message: React.FC<MessageProps> = ({ content, isUser }) => {
   // and display raw LaTeX or an error message instead.
   // Rehype-katex largely handles this by setting a class on the element.
   // You can style .katex-error in your CSS.
-
+  console.log(content)
   return (
     <div className={`flex pb-12 h-full w-full ${isUser ? 'items-end justify-end' : 'items-start'}`}>
       <div

@@ -1,10 +1,13 @@
-
-// components/MathChatbot.tsx
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Message from './message'; // Import the Message component
 import InputField from './chat-input'; // Import the InputField component
+
+
+import { useSearchParams } from 'next/navigation';
+
+
 
 interface ChatMessage {
   content: string;
@@ -16,90 +19,86 @@ const MathChatbot: React.FC = () => {
   const [input, setInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Ref for tracking the last rendered content length to optimize scroll
   const lastRenderedLengthRef = useRef<number>(0);
+  const searchParams = useSearchParams();
+  const model = searchParams.get('model'); // get ?term=hello
+  const kb = searchParams.get('kb'); // get ?term=hello
 
-  // Simulates a streaming API response
-  const simulateStreamingApi = useCallback(async (userMessage: string) => {
+
+  // New streaming function fetching from backend
+  const fetchStreamingResponse = async (userMessage: string) => {
     setIsLoading(true);
 
     // Add user message immediately
     setMessages((prev) => [...prev, { content: userMessage, isUser: true }]);
-
-    // Add a placeholder for AI's response that will be filled incrementally
+    // Add empty assistant message to be filled
     setMessages((prev) => [...prev, { content: '', isUser: false }]);
 
-    const dummyResponses = [
-      'Ok, la oss løse den kvadratiske ligningen ',
-      '`ax^2 + bx + c = 0`. ',
-      'Vi kan bruke den generelle løsningsformelen:\n\n',
-      '$$ x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} $$\n\n', // A complete formula
-      'Her er et eksempel: Løs ',
-      '`2x^2 + 5x - 3 = 0`. \n\n',
-      'Først identifiserer vi koeffisientene: $a=2$, $b=5$, og $c=-3$.\n',
-      'Sett disse inn i formelen:\n\n',
-      '$$ x = \\frac{-5 \\pm \\sqrt{5^2 - 4(2)(-3)}}{2(2)} $$\n\n',
-      '$$ x = \\frac{-5 \\pm \\sqrt{25 + 24}}{4} $$\n\n',
-      '$$ x = \\frac{-5 \\pm \\sqrt{49}}{4} $$\n\n',
-      '$$ x = \\frac{-5 \\pm 7}{4} $$\n\n',
-      'Dette gir to løsninger:\n\n',
-      '$x_1 = \\frac{-5 + 7}{4} = \\frac{2}{4} = 0.5$\n',
-      '$x_2 = \\frac{-5 - 7}{4} = \\frac{-12}{4} = -3$\n\n',
-      'Her er en feilaktig latex for test: $2x^2 + 5x - 3 = 0\\text{ugyldig}$', // Invalid LaTeX for error test
-      'Løsningene er $x=0.5$ og $x=-3$. ',
-      'Håper dette var forståelig!'
-    ];
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/chat/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: userMessage, model: model, kb: kb, messages: messages }),
+      });
 
-    let currentBuffer = '';
-    const delay = 50; // Milliseconds per "token"
+      if (!response.body) return;
 
-    for (let i = 0; i < dummyResponses.length; i++) {
-      const segment = dummyResponses[i];
-      for (const char of segment) {
-        currentBuffer += char;
-        await new Promise((resolve) => setTimeout(resolve, delay));
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let accumulated = '';
 
-        // Update the last message in the array incrementally
-        setMessages((prev) => {
-          const newMessages = [...prev];
-          if (newMessages.length > 0) {
-            newMessages[newMessages.length - 1].content = currentBuffer;
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n').filter(line => line.startsWith('data: '));
+
+          for (const line of lines) {
+            const text = line.replace('data: ', '');
+
+            if (text) {
+              accumulated += text;
+              setMessages((prev) => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1].content = accumulated;
+                return newMessages;
+              });
+            }
           }
-          return newMessages;
-        });
+        }
       }
+    } catch (error) {
+      console.error('Streaming error:', error);
     }
 
     setIsLoading(false);
-  }, []);
+  };
 
   // Effect to scroll to the bottom when messages are updated
   useEffect(() => {
     if (scrollRef.current && messages.length > 0) {
       const lastMessageContent = messages[messages.length - 1].content;
-      // Only scroll if the last message content has actually grown
       if (lastMessageContent.length > lastRenderedLengthRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         lastRenderedLengthRef.current = lastMessageContent.length;
       }
     }
-  }, [messages]); // Dependency array: triggers when 'messages' state changes
+  }, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim() === '' || isLoading) return; // Prevent sending empty or multiple messages
+    if (input.trim() === '' || isLoading) return;
 
-    simulateStreamingApi(input);
-    setInput(''); // Clear input field
+    fetchStreamingResponse(input);
+    setInput('');
   };
 
   return (
     <div className="flex flex-col h-fit bg-accent relative p-4">
-      <div
-        ref={scrollRef}
-        className="flex-1 p-4 space-y-4 h-full"
-      >
+      <div ref={scrollRef} className="flex-1 p-4 space-y-4 h-full">
         {messages.map((msg, index) => (
           <Message key={index} content={msg.content} isUser={msg.isUser} />
         ))}
@@ -116,7 +115,7 @@ const MathChatbot: React.FC = () => {
         isLoading={isLoading}
       />
 
-      {/* Basic CSS for the pulse animation and scrollbar */}
+      {/* Animations and styles */}
       <style jsx>{`
         .dot-animation:after {
           content: ' .';
@@ -146,33 +145,9 @@ const MathChatbot: React.FC = () => {
               .5em 0 0 black;
           }
         }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-
-        /* Styling for KaTeX errors */
-        :global(.katex-error) {
-            color: red !important;
-            font-weight: bold;
-            text-decoration: wavy red underline;
-            background-color: #ffe0e0;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
       `}</style>
     </div>
   );
 };
 
-export default MathChatbot
+export default MathChatbot;
