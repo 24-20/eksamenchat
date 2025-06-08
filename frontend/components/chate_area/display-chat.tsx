@@ -4,9 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Message from './message'; // Import the Message component
 import InputField from './chat-input'; // Import the InputField component
 
-
+import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-
 
 
 interface ChatMessage {
@@ -14,15 +13,26 @@ interface ChatMessage {
   isUser: boolean;
 }
 
-const MathChatbot: React.FC = () => {
+interface MathChatBotProps {
+  chatId: string | undefined;
+  submit: string | null;
+  prop_input: string | null;
+}
+
+const MathChatbot: React.FC<MathChatBotProps> = ({ chatId, submit, prop_input }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState<string>('');
+  // Initialize input with prop_input if available, otherwise empty string
+  const [input, setInput] = useState<string>(prop_input ? prop_input : '');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastRenderedLengthRef = useRef<number>(0);
   const searchParams = useSearchParams();
-  const model = searchParams.get('model'); // get ?term=hello
-  const kb = searchParams.get('kb'); // get ?term=hello
+  const model = searchParams.get('model');
+  const kb = searchParams.get('kb');
+  const router = useRouter();
+
+  // A ref to ensure the initial submission triggered by prop_input/submit URL params only runs once.
+  const hasProcessedInitialSubmit = useRef(false);
 
 
   // New streaming function fetching from backend
@@ -38,6 +48,7 @@ const MathChatbot: React.FC = () => {
       const response = await fetch('http://localhost:8000/api/v1/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        // Pass a copy of messages to avoid issues with state closure in streaming loop
         body: JSON.stringify({ prompt: userMessage, model: model, kb: kb, messages: messages }),
       });
 
@@ -63,6 +74,7 @@ const MathChatbot: React.FC = () => {
               accumulated += text;
               setMessages((prev) => {
                 const newMessages = [...prev];
+                // Update the last message in the array (which is the assistant's message)
                 newMessages[newMessages.length - 1].content = accumulated;
                 return newMessages;
               });
@@ -72,14 +84,16 @@ const MathChatbot: React.FC = () => {
       }
     } catch (error) {
       console.error('Streaming error:', error);
+      // Potentially add an error message to chat or handle gracefully
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   // Effect to scroll to the bottom when messages are updated
   useEffect(() => {
     if (scrollRef.current && messages.length > 0) {
+      // Only scroll if the last message content has changed (i.e., new text is being streamed)
       const lastMessageContent = messages[messages.length - 1].content;
       if (lastMessageContent.length > lastRenderedLengthRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -88,17 +102,42 @@ const MathChatbot: React.FC = () => {
     }
   }, [messages]);
 
+  // Effect to handle initial submission from URL parameters
+  useEffect(() => {
+    // Only proceed if 'submit' is truthy and we haven't processed it before
+    if (submit && !hasProcessedInitialSubmit.current) {
+      // Ensure prop_input exists as it's needed for the message
+      if (prop_input) {
+        fetchStreamingResponse(prop_input);
+        setInput(''); // Clear the input field after sending the message
+      }
+      // Mark that the initial submission has been processed
+      hasProcessedInitialSubmit.current = true;
+    }
+    // Dependencies: runs when 'submit' or 'prop_input' props change.
+    // This allows it to trigger on the initial render where 'submit' is true,
+    // but not on subsequent renders where it becomes null.
+  }, [submit, prop_input]);
+
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() === '' || isLoading) return;
 
+    // If no chatId, redirect to new chat page to create one
+    if (!chatId) {
+      router.push(`/c/new/?model=${model || ''}&kb=${kb || ''}&prop_input=${input}&submit=true`);
+      return;
+    }
+
+    // Otherwise, fetch streaming response for the current chat
     fetchStreamingResponse(input);
     setInput('');
   };
 
   return (
     <div className="flex flex-col h-fit bg-accent relative p-4">
-      <div ref={scrollRef} className="flex-1 p-4 space-y-4 h-full">
+      <div ref={scrollRef} className="flex-1 p-4 space-y-4 h-full overflow-y-auto"> {/* Added overflow-y-auto */}
         {messages.map((msg, index) => (
           <Message key={index} content={msg.content} isUser={msg.isUser} />
         ))}
