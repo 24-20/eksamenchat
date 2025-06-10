@@ -12,6 +12,8 @@ class Settings(BaseSettings):
         "https://your-vercel-domain.vercel.app",
     ]
     OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
+    SUPABASE_URL: Optional[str] = os.getenv("SUPABASE_URL")
+    SUPABASE_KEY: Optional[str] = os.getenv("SUPABASE_KEY")
 
 
 settings = Settings()

@@ -36,7 +36,7 @@ const MathChatbot: React.FC<MathChatBotProps> = ({ chatId, submit, prop_input })
 
 
   // New streaming function fetching from backend
-  const fetchStreamingResponse = async (userMessage: string) => {
+  const fetchStreamingResponse = async (userMessage: string, newChat?: true | undefined) => {
     setIsLoading(true);
 
     // Add user message immediately
@@ -49,7 +49,8 @@ const MathChatbot: React.FC<MathChatBotProps> = ({ chatId, submit, prop_input })
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // Pass a copy of messages to avoid issues with state closure in streaming loop
-        body: JSON.stringify({ prompt: userMessage, model: model, kb: kb, messages: messages }),
+        body: JSON.stringify({ prompt: userMessage, model, kb, messages, chatId, newChat }),
+
       });
 
       if (!response.body) return;
@@ -108,7 +109,7 @@ const MathChatbot: React.FC<MathChatBotProps> = ({ chatId, submit, prop_input })
     if (submit && !hasProcessedInitialSubmit.current) {
       // Ensure prop_input exists as it's needed for the message
       if (prop_input) {
-        fetchStreamingResponse(prop_input);
+        fetchStreamingResponse(prop_input, true);
         setInput(''); // Clear the input field after sending the message
       }
       // Mark that the initial submission has been processed
