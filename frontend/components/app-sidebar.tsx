@@ -139,9 +139,9 @@ export function AppSidebar() {
                   <SidebarMenuItem key={chat.id} className="group">
                     <div className="flex items-center w-full">
                       <SidebarMenuButton asChild className="flex-1">
-                        <a href={`/c/${chat.id}`} className="truncate">
+                        <Link href={`/c/${chat.id}`} className="truncate">
                           <span className="truncate">{truncateTitle(chat.title ? chat.title : 'title loading...')}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
 
                       <DropdownMenu>
