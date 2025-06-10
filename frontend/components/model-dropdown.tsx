@@ -108,7 +108,7 @@ export function ModelDropdown() {
 
         <div className="col-span-2 flex justify-end p-2">
           <Button onClick={handleSave} variant="outline" size="sm">
-            Save
+            Lagre
           </Button>
         </div>
       </DropdownMenuContent>
