@@ -2,7 +2,7 @@
 
 import { SquarePenIcon, User, MoreHorizontal, Trash2 } from "lucide-react"
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -46,7 +46,7 @@ export function AppSidebar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [deletingChatId, setDeletingChatId] = useState<string | null>(null);
   const router = useRouter();
-
+  const pathname = usePathname()
   // Fetch chats on component mount
   useEffect(() => {
     const loadChats = async () => {
@@ -157,7 +157,14 @@ export function AppSidebar() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => handleDeleteChat(chat.id)}
+                            onClick={() => {
+                              handleDeleteChat(chat.id)
+                              const match = pathname.match(/^\/c\/([^\/]+)$/);
+                              const currentId = match ? match[1] : null;
+                              if (currentId === chat.id) {
+                                router.replace('/c')
+                              }
+                            }}
                             className="text-destructive focus:text-destructive"
                             disabled={deletingChatId === chat.id}
                           >
