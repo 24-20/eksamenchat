@@ -29,13 +29,13 @@ const knowledgeBases = [
 ];
 
 const gptModels = [
-  { id: "gpt_o4_mini", label: "GPT-o4-mini" },
-  { id: "gpt_4o", label: "GPT-4o" },
+  { id: "gpt-o4-mini", label: "GPT-o4-mini" },
+  { id: "gpt-4o", label: "GPT-4o" },
 ];
 
 // Default values
 const defaultKnowledgeBase = { id: "matte_r2", label: "Matte R2" };
-const defaultModel = { id: "gpt_4o", label: "GPT-4o" };
+const defaultModel = { id: "gpt-4o", label: "GPT-4o" };
 
 export const AppProvider = ({ children }: AppProviderProps) => {
   // Start as undefined and set them after checking URL/localStorage
